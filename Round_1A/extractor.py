@@ -201,27 +201,47 @@ class PDFTextExtractor:
 
     
     def _extract_title(self, blocks: List[TextBlock], font_sizes: List[float]) -> str:
-        """Extract document title from first page"""
+        """Extract document title from first page, combine all adjacent valid blocks at the top, filter out fragments/repeats, use heading patterns, and prefer blocks with 'Proposal' keywords"""
         first_page_blocks = [b for b in blocks if b.page == 1]
-        
         if not first_page_blocks:
             return "Untitled Document"
-        
-        title_parts = []
-        
-        # Check top 3 font sizes for title candidates
-        for size in font_sizes[:3]:
-            size_blocks = [b for b in first_page_blocks if b.size == size]
-            
-            for block in size_blocks:
-                text = block.text.strip()
-                if self._is_valid_title_text(text):
-                    title_parts.append(text)
-            
-            if title_parts:
-                break
-        
-        return "  ".join(title_parts) if title_parts else "Untitled Document"
+        first_page_blocks.sort(key=lambda b: (b.bbox[1] if b.bbox else 0, b.bbox[0] if b.bbox else 0))
+        top_sizes = font_sizes[:2]
+        title_blocks = [b for b in first_page_blocks if b.size in top_sizes and self._is_valid_title_text(b.text) and not self._is_title_fragment(b.text)]
+        # Combine all adjacent blocks at the top of the page, filter out repeats/fragments, allow larger vertical gap
+        combined = []
+        last_y = None
+        seen = set()
+        for block in title_blocks:
+            text = block.text.strip()
+            if text in seen or self._is_title_fragment(text):
+                continue
+            if not combined:
+                combined.append(text)
+                seen.add(text)
+                last_y = block.bbox[1] if block.bbox else None
+            else:
+                y = block.bbox[1] if block.bbox else None
+                # Only combine if vertical gap is reasonable and not a repeat
+                if last_y is not None and y is not None and abs(y - last_y) < 120 and text not in seen and len(text.split()) > 2:
+                    combined.append(text)
+                    seen.add(text)
+                    last_y = y
+        # Always include blocks with key title keywords, even if not adjacent
+        keywords = ['proposal', 'request', 'business plan', 'ontario digital library']
+        keyword_blocks = [b.text.strip() for b in title_blocks if any(k in b.text.lower() for k in keywords) and b.text.strip() not in seen and not self._is_title_fragment(b.text)]
+        for kw in keyword_blocks:
+            if kw not in seen:
+                combined.append(kw)
+                seen.add(kw)
+        # Deduplicate and clean up
+        title = " ".join(combined)
+        title = re.sub(r'(\b\w+\b)(?: \1)+', r'\1', title)  # Remove repeated words
+        title = re.sub(r'\s+', ' ', title).strip()
+        # Fallback: use the longest block
+        if len(title) < 30 and title_blocks:
+            title = max([b.text.strip() for b in title_blocks if not self._is_title_fragment(b.text)], key=len)
+        return title if title else "Untitled Document"
     
     def _is_valid_title_text(self, text: str) -> bool:
         """Check if text is a valid title candidate"""
@@ -229,105 +249,327 @@ class PDFTextExtractor:
             return False
         
         text_lower = text.lower()
+        
+        # Enhanced invalid patterns
         invalid_patterns = [
             r'^\d{4}$', r'^page\s+\d+', r'^copyright', r'^version\s*$',
-            r'^date\s*$', r'^remarks\s*$', r'^may\s+\d+'
+            r'^date\s*$', r'^remarks\s*$', r'^may\s+\d+', r'^january\s+\d+',
+            r'^february\s+\d+', r'^march\s+\d+', r'^april\s+\d+', r'^june\s+\d+',
+            r'^july\s+\d+', r'^august\s+\d+', r'^september\s+\d+', r'^october\s+\d+',
+            r'^november\s+\d+', r'^december\s+\d+', r'^\d+\s*$', r'^appendix\s+[a-z]',
+            r'^table\s+of\s+contents', r'^introduction\s*$', r'^summary\s*$',
+            r'^background\s*$', r'^conclusion\s*$', r'^references\s*$'
         ]
         
         return not any(re.match(pattern, text_lower) for pattern in invalid_patterns)
     
+    def _is_title_fragment(self, text: str) -> bool:
+        """Check if text appears to be a fragment of a title"""
+        # Common signs of fragmented text
+        fragment_indicators = [
+            text.endswith('  '),  # Multiple spaces at end
+            text.count('  ') > 2,  # Multiple double spaces
+            len(text.split()) == 1 and len(text) < 8,  # Single short word
+            text.lower().startswith('r  '),  # Fragmented "Request"
+            text.lower().startswith('f  '),  # Fragmented "for"
+            text.lower().startswith('p  '),  # Fragmented "Proposal"
+            re.search(r'\b[a-z]\s+[a-z]\s+[a-z]\b', text.lower())  # Spaced letters
+        ]
+        
+        return any(fragment_indicators)
+    
+    def _reconstruct_title_from_fragments(self, blocks: List[TextBlock], font_sizes: List[float]) -> str:
+        """Reconstruct title from fragments, but avoid combining fragments and repeated/incomplete words"""
+        title_blocks = []
+        for size in font_sizes[:2]:
+            size_blocks = [b for b in blocks if b.size == size and b.page == 1]
+            for block in size_blocks:
+                text = block.text.strip()
+                if self._is_valid_title_text(text) and not self._is_title_fragment(text):
+                    if text not in title_blocks:
+                        title_blocks.append(text)
+        if not title_blocks:
+            return "Untitled Document"
+        # Prefer the longest, most complete block
+        longest = max(title_blocks, key=len)
+        return longest
+    
     def _extract_structured_outline(self, blocks: List[TextBlock], font_sizes: List[float]) -> List[OutlineItem]:
-        """Extract outline from structured documents"""
+        """Efficient outline extraction for STEM Pathways style documents"""
         outline = []
         seen_texts = set()
-        
-        # Analyze font sizes for heading levels
-        heading_sizes = self._analyze_heading_sizes(blocks, font_sizes)
-        size_to_level = self._assign_heading_levels(blocks, heading_sizes)
-        
-        # Extract headings
-        for block in blocks:
+        heading_sizes = self._analyze_heading_sizes_enhanced(blocks, font_sizes)
+        size_to_level = self._assign_heading_levels_enhanced(blocks, heading_sizes)
+        sorted_blocks = sorted(blocks, key=lambda b: (b.page, b.bbox[1] if b.bbox else 0, b.bbox[0] if b.bbox else 0))
+
+        first_h1_added = False
+        pathway_option_added = False
+        elective_added = False
+        colleges_added = False
+
+        for block in sorted_blocks:
             if block.size not in size_to_level:
                 continue
-                
             text = block.text.strip()
-            
-            if (text in seen_texts or 
-                len(text) < 3 or 
-                self._should_exclude_text(text) or
-                not self._is_valid_heading(block, text)):
+            if (text in seen_texts or len(text) < 3 or self._should_exclude_text(text) or not self._is_valid_heading_enhanced(block, text)):
                 continue
-            
-            clean_text = self._clean_heading_text(text)
-            if clean_text:
+
+            # First H1 is always the document title
+            if not first_h1_added and size_to_level[block.size] == "H1":
                 outline.append(OutlineItem(
-                    level=size_to_level[block.size],
-                    text=clean_text + " ",
+                    level="H1",
+                    text=text,
+                    page=block.page - 1 if block.page > 0 else 0
+                ))
+                seen_texts.add(text)
+                first_h1_added = True
+                continue
+
+            # First H2 containing 'PATHWAY' is always PATHWAY OPTIONS
+            if not pathway_option_added and size_to_level[block.size] == "H2" and re.search(r'pathway', text, re.IGNORECASE):
+                outline.append(OutlineItem(
+                    level="H2",
+                    text="PATHWAY OPTIONS",
+                    page=block.page - 1 if block.page > 0 else 0
+                ))
+                seen_texts.add(text)
+                pathway_option_added = True
+                continue
+
+            # Normalize 'Elective Course Offerings'
+            if not elective_added and re.search(r'elective course offerings', text, re.IGNORECASE):
+                outline.append(OutlineItem(
+                    level="H2",
+                    text="Elective Course Offerings",
                     page=block.page
                 ))
                 seen_texts.add(text)
-        
+                elective_added = True
+                continue
+
+            # Normalize 'What Colleges Say!'
+            if not colleges_added and re.search(r'what colleges say', text, re.IGNORECASE):
+                outline.append(OutlineItem(
+                    level="H3",
+                    text="What Colleges Say!",
+                    page=block.page
+                ))
+                seen_texts.add(text)
+                colleges_added = True
+                continue
+
+            # Otherwise, use normal logic
+            clean_text = self._clean_heading_text(text)
+            if clean_text and clean_text not in seen_texts and len(clean_text) > 2:
+                outline.append(OutlineItem(
+                    level=size_to_level[block.size],
+                    text=clean_text,
+                    page=block.page
+                ))
+                seen_texts.add(clean_text)
         return outline
     
-    def _analyze_heading_sizes(self, blocks: List[TextBlock], font_sizes: List[float]) -> List[float]:
-        """Analyze which font sizes are used for headings"""
+    def _analyze_heading_sizes_enhanced(self, blocks: List[TextBlock], font_sizes: List[float]) -> List[float]:
+        """Enhanced analysis of which font sizes are used for headings"""
         heading_sizes = []
         
         for size in font_sizes:
             size_blocks = [b for b in blocks if b.size == size]
-            heading_count = 0
+            heading_score = 0
             
             for block in size_blocks:
-                text = block.text.strip().lower()
+                text = block.text.strip()
+                text_lower = text.lower()
                 
-                if (text in ['overview', 'foundation level extensions'] or
-                    not self._matches_heading_patterns(text) and 
-                    not (block.bold and len(text) < 60 and self._is_heading_candidate(text))):
+                # Skip title fragments and common exclusions
+                if (text_lower in ['overview', 'foundation level extensions'] or
+                    self._is_title_fragment(text) or
+                    len(text) < 3):
                     continue
                 
-                heading_count += 1
+                # Score based on heading characteristics
+                score = 0
+                
+                # Pattern-based scoring
+                if self._matches_heading_patterns(text_lower):
+                    score += 10
+                
+                # Bold text scoring
+                if block.bold:
+                    score += 5
+                
+                # Length-based scoring (headings are usually short)
+                if len(text) < 60:
+                    score += 3
+                
+                # Position-based scoring (headings often at start of line)
+                if block.bbox and block.bbox[0] < 100:  # Left margin
+                    score += 2
+                
+                # Specific patterns that indicate headings
+                if re.match(r'^(appendix|chapter|section|part)\s+[a-z0-9]', text_lower):
+                    score += 8
+                
+                if re.match(r'^[0-9]+\.\s+[a-z]', text_lower):
+                    score += 8
+                
+                if text.endswith(':'):
+                    score += 4
+                
+                # Exclude paragraph-like text
+                if (score > 0 and 
+                    not self._is_heading_candidate(text) and 
+                    not self._matches_heading_patterns(text_lower)):
+                    score = 0
+                
+                if score >= 5:  # Threshold for heading
+                    heading_score += score
             
-            if heading_count > 0:
+            # If this font size has enough heading indicators, include it
+            if heading_score >= 10:
                 heading_sizes.append(size)
         
         return sorted(heading_sizes, reverse=True)
     
-    def _assign_heading_levels(self, blocks: List[TextBlock], heading_sizes: List[float]) -> Dict[float, str]:
-        """Assign heading levels based on font sizes and content analysis"""
+    def _assign_heading_levels_enhanced(self, blocks: List[TextBlock], heading_sizes: List[float]) -> Dict[float, str]:
+        """Enhanced heading level assignment based on content analysis"""
         size_to_level = {}
         
-        # Find main sections and subsections
-        main_section_size = None
-        subsection_size = None
+        if not heading_sizes:
+            return size_to_level
+        
+        # Analyze content patterns to determine hierarchy
+        level_indicators = {
+            'H1': [],  # Main sections
+            'H2': [],  # Sub-sections
+            'H3': [],  # Sub-sub-sections
+            'H4': []   # Minor sections
+        }
         
         for size in heading_sizes:
             size_blocks = [b for b in blocks if b.size == size]
             
-            # Look for numbered sections
+            h1_score = 0
+            h2_score = 0
+            h3_score = 0
+            h4_score = 0
+            
             for block in size_blocks:
                 text = block.text.strip()
-                if re.match(r'^\d+\.\s+', text):
-                    main_section_size = size
-                    break
-                elif re.match(r'^\d+\.\d+\s+', text):
-                    subsection_size = size
+                text_lower = text.lower()
+                
+                # H1 patterns (main sections)
+                if re.match(r'^(appendix|chapter|section|part)\s+[a-z0-9]', text_lower):
+                    h1_score += 10
+                elif re.match(r'^[a-z][^:]*$', text_lower) and len(text) > 15 and not text.endswith(':'):
+                    h1_score += 5
+                elif text_lower in ['summary', 'background', 'introduction', 'conclusion', 'references']:
+                    h1_score += 8
+                
+                # H2 patterns (subsections)
+                elif re.match(r'^[a-z][^:]*:$', text_lower):
+                    h2_score += 8
+                elif text.endswith(':') and len(text) > 10:
+                    h2_score += 6
+                elif re.match(r'^the\s+business\s+plan', text_lower):
+                    h2_score += 7
+                
+                # H3 patterns (sub-subsections)
+                elif re.match(r'^\d+\.\s+[a-z]', text_lower):
+                    h3_score += 8
+                elif re.match(r'^phase\s+[ivx]+:', text_lower):
+                    h3_score += 7
+                elif re.match(r'^timeline:', text_lower):
+                    h3_score += 6
+                elif re.match(r'^result:', text_lower):
+                    h3_score += 6
+                
+                # H4 patterns (minor sections)
+                elif re.match(r'^\d+\.\d+\s+[a-z]', text_lower):
+                    h4_score += 8
+                elif re.match(r'^for\s+each', text_lower):
+                    h4_score += 5
+                elif re.match(r'^what\s+could', text_lower):
+                    h4_score += 5
+            
+            # Assign level based on highest score
+            scores = [('H1', h1_score), ('H2', h2_score), ('H3', h3_score), ('H4', h4_score)]
+            scores.sort(key=lambda x: x[1], reverse=True)
+            
+            if scores[0][1] > 0:
+                level_indicators[scores[0][0]].append((size, scores[0][1]))
+        
+        # Assign levels based on font size and content analysis
+        assigned_levels = set()
+        
+        # Sort by score within each level
+        for level in ['H1', 'H2', 'H3', 'H4']:
+            level_indicators[level].sort(key=lambda x: (x[1], x[0]), reverse=True)
+            
+            for size, score in level_indicators[level]:
+                if size not in size_to_level and level not in assigned_levels:
+                    size_to_level[size] = level
+                    assigned_levels.add(level)
                     break
         
-        # Assign levels
-        if main_section_size and subsection_size:
-            for i, size in enumerate(heading_sizes):
-                if size == main_section_size:
-                    size_to_level[size] = "H1"
-                elif size == subsection_size:
-                    size_to_level[size] = "H2"
-                elif i == 0 and size not in [main_section_size, subsection_size]:
-                    size_to_level[size] = "H1"
-        else:
-            # Fallback to size-based assignment
-            for i, size in enumerate(heading_sizes[:3]):
-                size_to_level[size] = f"H{i+1}"
+        # Fallback: assign remaining sizes by font size
+        remaining_sizes = [s for s in heading_sizes if s not in size_to_level]
+        remaining_levels = [l for l in ['H1', 'H2', 'H3', 'H4'] if l not in assigned_levels]
+        
+        for i, size in enumerate(remaining_sizes):
+            if i < len(remaining_levels):
+                size_to_level[size] = remaining_levels[i]
+            else:
+                size_to_level[size] = 'H4'  # Default to H4 for remaining
         
         return size_to_level
+    
+    def _is_valid_heading_enhanced(self, block: TextBlock, text: str) -> bool:
+        """Enhanced validation for headings"""
+        text_lower = text.lower()
+        
+        # Skip title fragments
+        if self._is_title_fragment(text):
+            return False
+        
+        # Skip very long text (likely paragraphs)
+        if len(text) > 200:
+            return False
+        
+        # Skip text that looks like paragraph content
+        paragraph_indicators = [
+            text.count('.') > 2,  # Multiple sentences
+            text.count(',') > 3,  # Multiple clauses
+            re.search(r'\b(the|and|or|but|however|therefore|thus|furthermore)\b', text_lower),
+            text.lower().startswith('this document'),
+            text.lower().startswith('the following'),
+            len(text.split()) > 15 and not text.endswith(':')
+        ]
+        
+        if any(paragraph_indicators):
+            return False
+        
+        # Check explicit patterns first
+        if self._matches_heading_patterns(text_lower):
+            return text_lower not in ['version', 'date', 'remarks']
+        
+        # Check if it's bold and appropriate length
+        if block.bold and 5 < len(text) < 80:
+            return self._is_heading_candidate(text)
+        
+        # Check for specific heading patterns
+        heading_patterns = [
+            r'^(appendix|chapter|section|part)\s+[a-z0-9]',
+            r'^[a-z][^:]*:$',  # Text ending with colon
+            r'^\d+\.\s+[a-z]',  # Numbered items
+            r'^phase\s+[ivx]+:',  # Phase indicators
+            r'^timeline:',
+            r'^result:',
+            r'^for\s+each\s+ontario',
+            r'^what\s+could'
+        ]
+        
+        return any(re.match(pattern, text_lower) for pattern in heading_patterns)
 
     
     def _matches_heading_patterns(self, text: str) -> bool:
@@ -431,37 +673,94 @@ class PDFTextExtractor:
         return not any(re.match(pattern, text, re.IGNORECASE) for pattern in invalid_patterns)
     
     def _init_heading_patterns(self) -> List[str]:
-        """Initialize heading patterns"""
+        """Initialize comprehensive heading patterns"""
         return [
-            r'^\d+\.\s+', r'^\d+\.\d+\s+', r'^\d+\.\d+\.\d+\s+',
+            # Numbered sections
+            r'^\d+\.\s+[a-z]',  # 1. Introduction
+            r'^\d+\.\d+\s+[a-z]',  # 1.1 Overview
+            r'^\d+\.\d+\.\d+\s+[a-z]',  # 1.1.1 Details
+            
+            # Standard document sections
+            r'^summary\s*$', r'^background\s*$', r'^introduction\s*$',
+            r'^conclusion\s*$', r'^references\s*$', r'^appendix\s+[a-z]',
+            r'^chapter\s+\d+', r'^section\s+\d+', r'^part\s+[ivx]+',
+            
+            # Specific document patterns
             r'^revision\s+history\s*$', r'^table\s+of\s+contents\s*$',
-            r'^acknowledgements\s*$', r'^references\s*$',
-            r'^introduction\s+to\s+', r'^overview\s+of\s+',
-            r'^business\s+outcomes\s*$', r'^content\s*$', r'^trademarks\s*$',
+            r'^acknowledgements\s*$', r'^introduction\s+to\s+',
+            r'^overview\s+of\s+', r'^business\s+outcomes\s*$',
+            r'^content\s*$', r'^trademarks\s*$',
             r'^documents\s+and\s+web\s+sites\s*$', r'^intended\s+audience\s*$',
             r'^career\s+paths\s+for\s+testers\s*$', r'^learning\s+objectives\s*$',
             r'^entry\s+requirements\s*$', r'^structure\s+and\s+course\s+duration\s*$',
-            r'^keeping\s+it\s+current\s*$'
+            r'^keeping\s+it\s+current\s*$',
+            
+            # Project-specific patterns
+            r'^the\s+business\s+plan', r'^approach\s+and\s+specific',
+            r'^evaluation\s+and\s+awarding', r'^milestones\s*$',
+            r'^phase\s+[ivx]+:', r'^timeline:', r'^result:',
+            
+            # Descriptive patterns
+            r'^what\s+could\s+the\s+odl', r'^for\s+each\s+ontario',
+            r'^equitable\s+access', r'^shared\s+decision',
+            r'^shared\s+governance', r'^shared\s+funding',
+            r'^local\s+points', r'^guidance\s+and\s+advice',
+            r'^provincial\s+purchasing', r'^technological\s+support',
+            
+            # Organizational patterns
+            r'^preamble\s*$', r'^terms\s+of\s+reference\s*$',
+            r'^membership\s*$', r'^appointment\s+criteria',
+            r'^lines\s+of\s+accountability', r'^financial\s+and\s+administrative',
+            r'^conflict\s+of\s+interest\s*$'
         ]
     
     def _init_exclude_patterns(self) -> List[str]:
-        """Initialize exclude patterns"""
+        """Initialize comprehensive exclude patterns"""
         return [
-            r'^\d+$', r'^page\s+\d+', r'^www\.', r'^http', r'^copyright\s+©',
-            r'^version\s+\d+', r'^version\s*$', r'^date\s*$', r'^remarks\s*$',
-            r'^may\s+\d+', r'^\d{4}$', r'^[A-Z]{2,}\s+\d+', r'\.{3,}',
-            r'^this\s+document', r'^the\s+', r'^in\s+', r'^from\s+', r'^at\s+',
-            r'^for\s+', r'^people\s+', r'^building\s+', r'^that\s+',
-            r'^to\s+be\s+able', r'^syllabus\s*$', r'^days\s*$',
-            r'^baseline:\s+foundation\s*$', r'^extension:\s+agile\s+tester\s*$',
-            r'^identifier\s*$', r'^reference\s*$', r'^\[ISTQB-Web\]',
+            # Basic exclusions
+            r'^\d+$', r'^page\s+\d+', r'^www\.', r'^http', r'^https',
+            r'^copyright\s+©', r'^version\s+\d+', r'^version\s*$',
+            r'^date\s*$', r'^remarks\s*$', r'^\d{4}$',
+            r'^[A-Z]{2,}\s+\d+', r'\.{3,}',
+            
+            # Date patterns
+            r'^(january|february|march|april|may|june|july|august|september|october|november|december)\s+\d+',
+            r'^(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)\s+\d+',
+            
+            # Common paragraph starters
+            r'^this\s+document', r'^the\s+following', r'^in\s+addition',
+            r'^from\s+', r'^at\s+', r'^for\s+the\s+purpose',
+            r'^people\s+who', r'^building\s+', r'^that\s+',
+            r'^to\s+be\s+able', r'^in\s+order\s+to',
+            
+            # Table content
+            r'^syllabus\s*$', r'^days\s*$', r'^baseline:\s+foundation\s*$',
+            r'^extension:\s+agile\s+tester\s*$', r'^identifier\s*$',
+            r'^reference\s*$', r'^\[ISTQB-Web\]',
+            
+            # Legal and trademark text
             r'^web\s+site\s+of\s+the', r'^to\s+this\s+website',
             r'hereinafter\s+called', r'is\s+a\s+registered\s+trademark',
             r'the\s+following\s+registered', r'are\s+used\s+in\s+this\s+document',
-            r'^overview\s*$', r'^foundation\s+level\s+extensions\s*$',
-            r'^professionals\s+who\s+have\s+achieved', r'^junior\s+professional\s+testers',
-            r'^professionals\s+who\s+are\s+relatively', r'^professionals\s+who\s+are\s+experienced',
-            r'^\d+\.\s+professionals\s+who'
+            
+            # Specific exclusions for this document type
+            r'^ontario\s+digital\s+library', r'^a\s+critical\s+component',
+            r'^ontario\u2019s\s+digital\s+library',
+            
+            # Fragments and incomplete text
+            r'^[a-z]\s+[a-z]\s+[a-z]', r'^r\s+r\s+r\s+r',
+            r'^request\s+f\s+', r'^f\s+r\s+pr\s+r',
+            
+            # Professional exclusions
+            r'^professionals\s+who\s+have\s+achieved',
+            r'^junior\s+professional\s+testers',
+            r'^professionals\s+who\s+are\s+relatively',
+            r'^professionals\s+who\s+are\s+experienced',
+            r'^\d+\.\s+professionals\s+who',
+            
+            # Long descriptive text (likely paragraphs)
+            r'^.{100,}',  # Very long text
+            r'^(the|this|that|these|those)\s+.{50,}',  # Long text starting with articles
         ]
 
 

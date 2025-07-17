@@ -1,319 +1,254 @@
 {
-    "title": "RFP: R  RFP: R  RFP: R  RFP: Request f  quest f  quest f  quest for Pr  r Pr  r Pr  r Proposal  oposal  oposal  oposal",
+    "title": "RFP: RFP: Request f quest for Pr To Present a Proposal for Developing the Business Plan for the Ontario r Proposal",
     "outline": [
         {
-            "level": "H2",
+            "level": "H1",
+            "text": "Timeline ",
+            "page": 2
+        },
+        {
+            "level": "H4",
+            "text": "Background ",
+            "page": 3
+        },
+        {
+            "level": "H1",
             "text": "Equitable access for all Ontarians ",
             "page": 4
         },
         {
-            "level": "H2",
-            "text": "Shared decision-making and accountability ",
-            "page": 4
-        },
-        {
-            "level": "H2",
+            "level": "H1",
             "text": "Shared governance structure ",
             "page": 4
         },
         {
-            "level": "H2",
+            "level": "H1",
             "text": "Shared funding ",
             "page": 4
         },
         {
-            "level": "H2",
-            "text": "and put Ontario dollars to work for everyone  ",
-            "page": 4
-        },
-        {
-            "level": "H2",
+            "level": "H1",
             "text": "Local points of entry ",
             "page": 5
         },
         {
-            "level": "H2",
-            "text": "Access ",
-            "page": 5
-        },
-        {
-            "level": "H2",
-            "text": "Guidance and Advice ",
-            "page": 5
-        },
-        {
-            "level": "H2",
+            "level": "H1",
             "text": "Training ",
             "page": 5
         },
         {
-            "level": "H2",
+            "level": "H1",
             "text": "Provincial Purchasing & Licensing ",
             "page": 5
         },
         {
-            "level": "H2",
+            "level": "H1",
             "text": "Technological Support ",
             "page": 5
         },
         {
-            "level": "H2",
-            "text": "2007. The planning process must also secure the full commitment of all stakeholders, as ",
+            "level": "H1",
+            "text": "For each Ontario citizen it could mean ",
+            "page": 5
+        },
+        {
+            "level": "H1",
+            "text": "For each Ontario student it could mean ",
+            "page": 5
+        },
+        {
+            "level": "H1",
+            "text": "For each Ontario library it could mean ",
             "page": 6
         },
         {
-            "level": "H3",
-            "text": "Phase I: Business Planning ",
+            "level": "H4",
+            "text": "Milestones ",
+            "page": 7
+        },
+        {
+            "level": "H4",
+            "text": "Appendix A ",
             "page": 9
         },
         {
-            "level": "H3",
-            "text": "Timeline: March 2003 – September 2003 ",
+            "level": "H4",
+            "text": "ODL Envisioned Phases & Funding ",
             "page": 9
         },
         {
-            "level": "H3",
-            "text": "Result: The ODL business plan ",
+            "level": "H4",
+            "text": "Phase I ",
             "page": 9
         },
         {
-            "level": "H3",
-            "text": "Phase II: Implementing and Transitioning ",
+            "level": "H4",
+            "text": "Business Planning ",
             "page": 9
         },
         {
-            "level": "H3",
-            "text": "Timeline: April 2004 – December 2006 ",
+            "level": "H4",
+            "text": "March 2003 – September 2003 ",
             "page": 9
         },
         {
-            "level": "H3",
-            "text": "Result: The ODL is implemented and validated ",
+            "level": "H4",
+            "text": "April 2004 – December 2006 ",
             "page": 9
         },
         {
-            "level": "H3",
-            "text": "Phase III: Operating and Growing the ODL ",
+            "level": "H4",
+            "text": "January 2007 - ",
             "page": 9
         },
         {
-            "level": "H3",
-            "text": "Timeline: January 2007 - ",
+            "level": "H4",
+            "text": "Funding: $50 Million annually ($35 Million requested from government) ",
             "page": 9
         },
         {
-            "level": "H3",
-            "text": "Result: The ODL is fully operational and sustainable ",
-            "page": 9
-        },
-        {
-            "level": "H3",
+            "level": "H4",
             "text": "1. that ODL expenditures will increase by 50% over a 10 year period ",
             "page": 10
         },
         {
-            "level": "H3",
+            "level": "H4",
             "text": "2. that government funding will decrease from 70% to 45% during that 10 year period ",
             "page": 10
         },
         {
-            "level": "H3",
-            "text": "3. that library contributions, endowment and gifts/in-kind funding will increase from 30% to 55% ",
-            "page": 10
-        },
-        {
-            "level": "H3",
+            "level": "H4",
             "text": "OVERVIEW OF ODL FUNDING MODEL ",
             "page": 10
         },
         {
-            "level": "H1",
+            "level": "H4",
             "text": "Funding Source ",
             "page": 10
         },
         {
-            "level": "H3",
+            "level": "H4",
             "text": "TOTAL ANNUAL ",
             "page": 10
         },
         {
-            "level": "H3",
+            "level": "H4",
             "text": "represent an investment of $5.00 per citizen ",
             "page": 10
         },
         {
-            "level": "H3",
+            "level": "H4",
             "text": "on investment is worth $2 of value for Ontario ",
             "page": 10
         },
         {
-            "level": "H3",
-            "text": "1. Preamble ",
+            "level": "H4",
+            "text": "Appendix B ",
             "page": 11
         },
         {
-            "level": "H3",
-            "text": "2. Terms of Reference ",
+            "level": "H4",
+            "text": "Preamble ",
             "page": 11
         },
         {
-            "level": "H3",
-            "text": "2.1 developing a detailed business plan for the three-year implementation phase of the ODL, including ",
+            "level": "H4",
+            "text": "Terms of Reference ",
             "page": 11
         },
         {
-            "level": "H3",
-            "text": "2.2 consulting with and reporting to stakeholder communities, to ensure open, consistent and two-way ",
+            "level": "H4",
+            "text": "responsibilities include ",
             "page": 11
         },
         {
-            "level": "H3",
-            "text": "2.3 recruiting and managing the business planner(s); ",
-            "page": 11
-        },
-        {
-            "level": "H3",
-            "text": "2.4 defining terms of reference and resource parameters for business planner(s), and authorizing ",
-            "page": 11
-        },
-        {
-            "level": "H3",
+            "level": "H4",
             "text": "2.5 serving as a focus group for business planner(s) to test ideas; ",
             "page": 11
         },
         {
-            "level": "H3",
+            "level": "H4",
             "text": "2.6 providing signoff for business planner(s) at key decision points of business plan development; ",
             "page": 11
         },
         {
-            "level": "H3",
-            "text": "2.7 securing commitment from library, government, and institutional stakeholders for implementation ",
+            "level": "H4",
+            "text": "Membership ",
             "page": 11
         },
         {
-            "level": "H3",
-            "text": "2.8 presenting the business plan to funders ",
-            "page": 11
-        },
-        {
-            "level": "H3",
-            "text": "2.9 undertaking advocacy efforts to promote the ODL to the broader communities including library ",
-            "page": 11
-        },
-        {
-            "level": "H3",
-            "text": "3. Membership ",
-            "page": 11
-        },
-        {
-            "level": "H3",
+            "level": "H4",
             "text": "3.1 Schools ",
             "page": 11
         },
         {
-            "level": "H3",
+            "level": "H4",
             "text": "3.2 Universities ",
             "page": 11
         },
         {
-            "level": "H3",
+            "level": "H4",
             "text": "3.3 Colleges ",
             "page": 11
         },
         {
-            "level": "H3",
+            "level": "H4",
             "text": "3.4 Public libraries ",
             "page": 11
         },
         {
-            "level": "H3",
+            "level": "H4",
             "text": "3.5 Ontario Library Association representative (ex-officio) ( OLA to appoint one representative ) ",
             "page": 12
         },
         {
-            "level": "H3",
-            "text": "3.6 It is anticipated that as planning for the ODL evolves, the Steering Committee may, at its ",
+            "level": "H4",
+            "text": "Desired characteristics for steering committee appointees include ",
             "page": 12
         },
         {
-            "level": "H3",
-            "text": "4. Appointment Criteria and Process ",
+            "level": "H4",
+            "text": "Term ",
             "page": 12
         },
         {
-            "level": "H3",
-            "text": "5. Term ",
+            "level": "H4",
+            "text": "Chair ",
             "page": 12
         },
         {
-            "level": "H3",
-            "text": "6. Chair ",
+            "level": "H4",
+            "text": "Meetings ",
             "page": 12
         },
         {
-            "level": "H3",
-            "text": "7. Meetings ",
-            "page": 12
-        },
-        {
-            "level": "H3",
-            "text": "8. Lines of Accountability and Communication ",
-            "page": 12
-        },
-        {
-            "level": "H3",
-            "text": "8.1 The Steering Committee is accountable to the Province of Ontario, and to its business plan ",
-            "page": 12
-        },
-        {
-            "level": "H3",
-            "text": "8.2 The role of the Ontario Library Association is to assume responsibility for funds contributed by the ",
-            "page": 12
-        },
-        {
-            "level": "H3",
-            "text": "8.3 The Steering Committee is accountable to its constituent groups and other stakeholders for ",
-            "page": 13
-        },
-        {
-            "level": "H3",
-            "text": "9. Financial and Administrative Policies ",
-            "page": 13
-        },
-        {
-            "level": "H3",
-            "text": "9.1 Service on the Steering Committee is non-remunerative ",
-            "page": 13
-        },
-        {
-            "level": "H3",
-            "text": "9.2 Travel and meeting expenses for Steering Committee members are reimbursed according to the ",
-            "page": 13
-        },
-        {
-            "level": "H3",
+            "level": "H4",
             "text": "9.3 Conflict of Interest ",
             "page": 13
         },
         {
-            "level": "H3",
-            "text": "1. Reference Resources ",
+            "level": "H4",
+            "text": "Appendix C ",
             "page": 14
         },
         {
-            "level": "H3",
-            "text": "2. Subject Guides ",
+            "level": "H4",
+            "text": "Reference Resources ",
             "page": 14
         },
         {
-            "level": "H3",
-            "text": "3. Educational tool-kits ",
+            "level": "H4",
+            "text": "Subject Guides ",
             "page": 14
         },
         {
-            "level": "H3",
-            "text": "4. Journals, books, maps, music etc ",
+            "level": "H4",
+            "text": "Educational tool-kits ",
+            "page": 14
+        },
+        {
+            "level": "H4",
+            "text": "Journals, books, maps, music etc ",
             "page": 14
         }
     ]
