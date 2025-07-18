@@ -1,110 +1,50 @@
 {
-    "title": "Overview Foundation Level Extensions",
-    "outline": [
-        {
-            "level": "H3",
-            "text": "Revision History ",
-            "page": 3
-        },
-        {
-            "level": "H3",
-            "text": "Table of Contents ",
-            "page": 4
-        },
-        {
-            "level": "H1",
-            "text": "Introduction to Foundation Level Agile Tester Extension ",
-            "page": 4
-        },
-        {
-            "level": "H1",
-            "text": "Intended Audience ",
-            "page": 4
-        },
-        {
-            "level": "H1",
-            "text": "Career Paths for Testers ",
-            "page": 4
-        },
-        {
-            "level": "H1",
-            "text": "Learning Objectives ",
-            "page": 4
-        },
-        {
-            "level": "H1",
-            "text": "Entry Requirements ",
-            "page": 4
-        },
-        {
-            "level": "H1",
-            "text": "Keeping It Current ",
-            "page": 4
-        },
-        {
-            "level": "H1",
-            "text": "Business Outcomes ",
-            "page": 4
-        },
-        {
-            "level": "H1",
-            "text": "References ",
-            "page": 4
-        },
-        {
-            "level": "H1",
-            "text": "Trademarks ",
-            "page": 4
-        },
-        {
-            "level": "H3",
-            "text": "Acknowledgements ",
-            "page": 5
-        },
-        {
-            "level": "H4",
-            "text": "2.1 Intended Audience ",
-            "page": 7
-        },
-        {
-            "level": "H4",
-            "text": "2.2 Career Paths for Testers ",
-            "page": 7
-        },
-        {
-            "level": "H4",
-            "text": "2.3 Learning Objectives ",
-            "page": 7
-        },
-        {
-            "level": "H1",
-            "text": "chapter within each particular extension syllabus ",
-            "page": 8
-        },
-        {
-            "level": "H4",
-            "text": "2.4 Entry Requirements ",
-            "page": 8
-        },
-        {
-            "level": "H4",
-            "text": "2.6 Keeping It Current ",
-            "page": 9
-        },
-        {
-            "level": "H4",
-            "text": "3.1 Business Outcomes ",
-            "page": 10
-        },
-        {
-            "level": "H4",
-            "text": "3.2 Content ",
-            "page": 10
-        },
-        {
-            "level": "H4",
-            "text": "4.1 Trademarks ",
-            "page": 12
-        }
-    ]
+  "title": "Foundation Level Extensions",
+  "outline": [
+    {
+      "level": "H2",
+      "text": "Revision History",
+      "page": 3
+    },
+    {
+      "level": "H3",
+      "text": "Revision History",
+      "page": 4
+    },
+    {
+      "level": "H3",
+      "text": "Introduction to the Foundation Level Extensions",
+      "page": 4
+    },
+    {
+      "level": "H3",
+      "text": "Introduction to Foundation Level Agile Tester Extension",
+      "page": 4
+    },
+    {
+      "level": "H3",
+      "text": "Overview of the Foundation Level Extension – Agile Tester Syllabus",
+      "page": 4
+    },
+    {
+      "level": "H2",
+      "text": "1. Introduction to the Foundation Level Extensions",
+      "page": 6
+    },
+    {
+      "level": "H2",
+      "text": "2. Introduction to Foundation Level Agile Tester Extension",
+      "page": 7
+    },
+    {
+      "level": "H2",
+      "text": "3. Overview of the Foundation Level Extension – Agile Tester",
+      "page": 10
+    },
+    {
+      "level": "H2",
+      "text": "4. References",
+      "page": 12
+    }
+  ]
 }
