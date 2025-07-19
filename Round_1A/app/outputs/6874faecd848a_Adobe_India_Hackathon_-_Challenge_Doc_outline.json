@@ -1,9 +1,9 @@
 {
-  "title": "Untitled Document",
+  "title": "6874faecd848a_Adobe_India_Hackathon_-_Challenge_Doc",
   "outline": [
     {
       "level": "H1",
-      "text": "Welcome to the “Connecting the Dots” Challenge",
+      "text": "Welcome to the   “Connecting the Dots” Challenge",
       "page": 2
     },
     {
@@ -15,6 +15,11 @@
       "level": "H1",
       "text": "Round 1B: Persona-Driven Document Intelligence",
       "page": 7
+    },
+    {
+      "level": "H1",
+      "text": "Appendix:",
+      "page": 10
     }
   ]
 }

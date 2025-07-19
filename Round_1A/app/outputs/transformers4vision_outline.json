@@ -1,0 +1,95 @@
+{
+  "title": "transformers4vision",
+  "outline": [
+    {
+      "level": "H1",
+      "text": "TRANSFORMERS FOR  VISION",
+      "page": 1
+    },
+    {
+      "level": "H3",
+      "text": "◦ Transformers are  fun  stuff! enjo y y this technical ride",
+      "page": 2
+    },
+    {
+      "level": "H3",
+      "text": "◦ New forms  of learnable Computer Vision become possible!",
+      "page": 2
+    },
+    {
+      "level": "H2",
+      "text": "◦ Transformer",
+      "page": 5
+    },
+    {
+      "level": "H2",
+      "text": "◦ Vision",
+      "page": 5
+    },
+    {
+      "level": "H2",
+      "text": "◦ Summary & Discussion",
+      "page": 5
+    },
+    {
+      "level": "H2",
+      "text": "◦ References",
+      "page": 5
+    },
+    {
+      "level": "H2",
+      "text": "Part I",
+      "page": 7
+    },
+    {
+      "level": "H2",
+      "text": "Part II",
+      "page": 7
+    },
+    {
+      "level": "H1",
+      "text": "Encoder & Decoder",
+      "page": 9
+    },
+    {
+      "level": "H1",
+      "text": "Residual & Parallel",
+      "page": 16
+    },
+    {
+      "level": "H1",
+      "text": "The Concept",
+      "page": 22
+    },
+    {
+      "level": "H1",
+      "text": "Human-Object Interactions",
+      "page": 30
+    },
+    {
+      "level": "H1",
+      "text": "Summary & Discussion",
+      "page": 31
+    },
+    {
+      "level": "H1",
+      "text": "References – Model",
+      "page": 36
+    },
+    {
+      "level": "H1",
+      "text": "References – Vision",
+      "page": 37
+    },
+    {
+      "level": "H1",
+      "text": "References – Advanced (Fieke, Raimon, Wouter)",
+      "page": 38
+    },
+    {
+      "level": "H1",
+      "text": "Action Detection",
+      "page": 40
+    }
+  ]
+}
