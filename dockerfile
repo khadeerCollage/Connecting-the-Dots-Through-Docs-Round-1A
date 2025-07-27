@@ -15,8 +15,8 @@ RUN apk add --no-cache --virtual .build-deps gcc musl-dev freetype-dev g++ \
     && rm -rf /var/cache/apk/* /root/.cache/pip/*
 
 # 5. 
-COPY app/pdf_process.py .
+COPY app/process_pdfs.py .
 COPY app/inputs ./inputs
 COPY app/outputs ./outputs
 
-CMD ["python", "pdf_process.py"]
+CMD ["python", "process_pdfs.py"]
