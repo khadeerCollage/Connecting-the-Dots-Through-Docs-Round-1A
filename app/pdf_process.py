@@ -1,8 +1,4 @@
-# final_extractor.py - v100 (The Best & Final AI Engine)
-# This definitive version uses a Master Specialist AI Architecture to intelligently
-# classify documents and deploy a fine-tuned model for each type. It includes
-# advanced, position-aware boilerplate detection and robust title cleaning
-# to achieve the highest possible accuracy.
+#process_pdfs.py
 
 import fitz  # PyMuPDF
 import re
@@ -21,12 +17,12 @@ logger = logging.getLogger(__name__)
 
 class FinalExtractor:
     """
-    The definitive, optimized extractor with a Master Specialist AI Architecture.
-    It uses advanced boilerplate detection to produce the cleanest possible outline.
+    Our most powerful extractor is built on a specialized AI architecture. 
+    It intelligently detects and strips out boilerplate to deliver exceptionally clean outlines.
     """
 
     def _get_document_statistics(self, doc: fitz.Document) -> Dict[str, Any]:
-        """Calculates font size and text density stats to classify the document."""
+        """ Calculates font size and text density stats to classify the document."""
         stats = {'doc_type': 'academic', 'median_size': 12.0, 'stdev_size': 1.5}
         sizes, total_text_len, page_count = [], 0, doc.page_count
         if page_count == 0: return stats
@@ -56,7 +52,7 @@ class FinalExtractor:
         return stats
 
     def _clean_text(self, text: str) -> str:
-        """Normalizes text and cleans garbled/repetitive artifacts."""
+        """ Cleans and normalizes text, removing any garbled characters or repetitive patterns."""
         # Fix severe repetition (e.g., "RFP: R RFP: R RFP:")
         text = re.sub(r'(.{2,15}?)\1{2,}', r'\1', text, flags=re.DOTALL)
         
@@ -96,7 +92,7 @@ class FinalExtractor:
         return True
 
     def _detect_boilerplate(self, doc: fitz.Document) -> set:
-        """An advanced, position-aware algorithm to detect repeating headers and footers."""
+        """A smart algorithm that finds repeating headers and footers by tracking their position on the page."""
         if doc.page_count < 4: return set()
         
         signatures = Counter()
@@ -157,7 +153,7 @@ class FinalExtractor:
         return "H3"
 
     def _extract_academic_outline(self, doc: fitz.Document, stats: Dict, boilerplate: set) -> List[Dict]:
-        """Specialist AI for academic papers, reports, and other text-heavy documents."""
+        """An AI that's specifically built to handle dense material, like academic papers, reports, and other text-heavy documents."""
         outline = []
         prev_block_bbox = None
 
